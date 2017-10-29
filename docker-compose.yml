@@ -1,0 +1,19 @@
+version: '2'
+services:
+  webserver:
+    build: .
+    restart: always
+    ports:
+      - 12090:80
+    links:
+      - database
+    volumes:
+      - ./src2:/var/www/html
+  database:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'atomizer'
+      MYSQL_USER: 'testuser'
+      MYSQL_PASSWORD: 'testpass'
+      MYSQL_ROOT_PASSWORD: 'Wf5apZZApjsZWkZtc1qhuKKe'
