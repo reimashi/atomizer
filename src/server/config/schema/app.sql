@@ -62,3 +62,4 @@ CREATE TABLE users_items (
     FOREIGN KEY fk_users_items_item(item_id) REFERENCES items(id)
 ) CHARSET=utf8mb4;
     
+INSERT INTO users (username, password, active, created, modified) VALUES ('test', 'a94a8fe5ccb19ba61c4c0873d391e987982fbbd3', TRUE, NULL, NULL);
