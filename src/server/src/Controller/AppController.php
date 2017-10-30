@@ -46,9 +46,9 @@ class AppController extends Controller
         $this->loadComponent('Auth', [
             'storage' => 'Memory',
             'authenticate' => [
-                'Form' => [
+                /*'Form' => [
                     'scope' => ['Users.active' => 1]
-                ],
+                ],*/
                 'ADmad/JwtAuth.Jwt' => [
                     'userModel' => 'Users',
                     'fields' => [

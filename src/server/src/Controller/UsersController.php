@@ -55,13 +55,13 @@ class UsersController extends AppController
 
             $userModel = TableRegistry::get('users');
 
-            if ($userModel->exists(array("nick" => $body["username"]))) {
+            if ($userModel->exists(array("username" => $body["username"]))) {
                 throw new ConflictException("Username already exists");
             }
             else {
                 $userInstance = $userModel->newEntity(array(
-                    "nick" => $body["username"],
-                    "password" => Security::encrypt($body["password"], Configure::read('Encryption.db'))
+                    "username" => $body["username"],
+                    "password" => $body["password"]//Security::encrypt($body["password"], Configure::read('Encryption.db'))
                 ));
 
                 $userModel->save($userInstance);
@@ -83,43 +83,64 @@ class UsersController extends AppController
         }
     }
 
-    public function token($id)
+    // gettoken and login functions
+    public function token()
     {
         $user = $this->Auth->identify();
 
-        if (!$user) {
-            throw new UnauthorizedException('Invalid username or password');
+        // If token authenticate the user
+        if ($user) {
+            $this->set([
+                'token' => JWT::encode([
+                    'sub' => $user['id'],
+                    'exp' =>  time() + 604800
+                ],
+                    Security::salt())
+            ]);
         }
+        else {
+            $validator = new Validator();
 
-        $this->set([
-            'token' => JWT::encode([
-                'sub' => $user['id'],
-                'exp' =>  time() + 604800
-            ],
-                Security::salt())
-        ]);
-        /*$validator = new Validator();
+            $validator->requirePresence('username')
+                ->ascii('username')
+                ->lengthBetween('username', [4, 24]);
 
-        $validator->requirePresence('username')
-            ->ascii('username')
-            ->lengthBetween('username', [4, 24]);
+            $validator->requirePresence("password")
+                ->regex("password", '/^[0-9a-f]{40}$/i', "The password must be a sha1 hash");
 
-        $validator->requirePresence("password")
-            ->regex("password", '/^[0-9a-f]{40}$/i', "The password must be a sha1 hash");
+            $validationErrors = $validator->errors($this->request->getData());
 
-        $validationErrors = $validator->errors($this->request->getData());
+            if(empty($validationErrors)) {
+                $body = $this->request->getParsedBody();
 
-        if(empty($validationErrors)) {
-            $body = $this->request->getParsedBody();
+                $userModel = TableRegistry::get('users');
 
-            $userModel = TableRegistry::get('users');
+                if ($userModel->exists(array("username" => $body["username"], "password" => $body["password"]))) {
+                    $users = $userModel
+                        ->find()
+                        ->select(['id', 'password'])
+                        ->where(['username =' => $body["username"]])
+                        ->limit(1);
 
-            if ($userModel->exists(array("nick" => $body["username"]))) {
-                throw new ConflictException("Username already exists");
+                    if ($users->first()->password == $body["password"]) {
+                        $this->set(array(
+                            "id" => $users->first()->id,
+                            "token" => JWT::encode(
+                                [
+                                    'sub' => $users->first()->id,
+                                    'exp' =>  time() + 604800
+                                ],
+                                Security::salt())
+                        ));
+                    }
+                    else {
+                        throw new UnauthorizedException("Password incorrect");
+                    }
+                }
+                else {
+                    throw new UnauthorizedException("User or password incorrect");
+                }
             }
-            else {
-                throw new UnauthorizedException("User or password incorrect");
-            }
-        }*/
+        }
     }
 }

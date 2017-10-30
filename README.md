@@ -21,7 +21,7 @@ docker-compose -p atomizer -f docker/production/docker-compose.yml up
 ```
 
 After deployment, you should view 4 docker images running:
- - **client:** An nginx static server that serve the frontend
+ - **client:** A nginx static server that serve the frontend
  - **api:** An apache server serving the backend api in cakephp
- - **database:** An mariadb server as api database
- - **proxy:** An nginx proxy that connects everything
+ - **database:** A mariadb server as api database
+ - **proxy:** A nginx proxy that connects everything
