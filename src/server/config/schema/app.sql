@@ -8,6 +8,7 @@ CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
     password VARBINARY(255) NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
     created DATETIME,
     modified DATETIME,
     UNIQUE KEY (username)

@@ -68,12 +68,18 @@ class UsersTable extends Table
         $validator
             ->scalar('username')
             ->requirePresence('username', 'create')
-            ->notEmpty('username');
+            ->notEmpty('username')
+            ->add('username', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
 
         $validator
             ->scalar('password')
             ->requirePresence('password', 'create')
             ->notEmpty('password');
+
+        $validator
+            ->boolean('active')
+            ->requirePresence('active', 'create')
+            ->notEmpty('active');
 
         return $validator;
     }
