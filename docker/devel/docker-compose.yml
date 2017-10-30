@@ -1,0 +1,37 @@
+version: '2'
+services:
+  proxy:
+    image: jwilder/nginx-proxy
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+  client:
+    image: nginx:stable-alpine
+    restart: always
+    volumes:
+      - ../../src/client/dist:/usr/share/nginx/html:ro
+    environment:
+      VIRTUAL_HOST: 'atomizer.ga'
+    ports:
+      - 12090:80
+  api:
+    build: .
+    restart: always
+    links:
+      - database
+    volumes:
+      - ../../src/server:/var/www/html
+    environment:
+      VIRTUAL_HOST: 'api.atomizer.ga'
+    ports:
+      - 12091:80
+  database:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'atomizer'
+      MYSQL_USER: 'testuser'
+      MYSQL_PASSWORD: 'testpass'
+      MYSQL_ROOT_PASSWORD: 'Wf5apZZApjsZWkZtc1qhuKKe'
