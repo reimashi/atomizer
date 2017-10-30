@@ -6,10 +6,11 @@ DROP TABLE IF EXISTS users_items;
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nick VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL,
     password VARBINARY(255) NOT NULL,
     created DATETIME,
-    modified DATETIME
+    modified DATETIME,
+    UNIQUE KEY (username)
 );
 
 DROP TABLE IF EXISTS feeds;
