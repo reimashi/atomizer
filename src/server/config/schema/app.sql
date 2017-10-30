@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS feeds;
 CREATE TABLE feeds (
     id INT AUTO_INCREMENT PRIMARY KEY,
     url VARCHAR(255) NOT NULL,
+    remote_id VARCHAR(255) NOT NULL,
     web_url VARCHAR(255),
     title VARCHAR(255) NOT NULL,
     description VARCHAR(255),

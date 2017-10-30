@@ -44,20 +44,14 @@ use Cake\Routing\Route\DashedRoute;
 Router::defaultRouteClass(DashedRoute::class);
 
 Router::scope('/', function (RouteBuilder $routes) {
-    /** Index, SPA main application */
-    $routes->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
+    $routes->connect('/', ['controller' => 'Pages', 'action' => 'display']);
 
-    /** Other pages */
-    $routes->connect('/pages/*', ['controller' => 'Pages', 'action' => 'display']);
-
-    $routes->fallbacks(DashedRoute::class);
-});
-
-Router::scope('/api/', function (RouteBuilder $routes) {
     $routes->setExtensions(['json']);
 
     $routes->resources('Users');
     $routes->resources('Feeds');
+
+    $routes->fallbacks(DashedRoute::class);
 });
 
 /**
