@@ -6,21 +6,36 @@ Atom/RSS web reader
 - RSS 2.0
 
 ## Deploy
-Before deploy, you can change some configurations editing ```docker-compose.yml```
+Before deploy, you can change some configurations editing ```docker/[type]/docker-compose.yml```
  - Database configuration
  - DNS Domains
 
-Use **docker-compose** to build the image and deploy the web and database servers:
+First, clone the repo
 ```
 git clone https://github.com/reimashi/atomizer.git atomizer
 cd atomizer
-
-docker-compose -p atomizer -f docker/devel/docker-compose.yml up
-[OR]
-docker-compose -p atomizer -f docker/production/docker-compose.yml up
 ```
 
-After deployment, you should view 4 docker images running:
+To install server dependencies
+```
+cd src/server
+compose require
+```
+
+To install client dependencies and generate bin files
+```
+cd src/client
+npm install
+webpack
+```
+
+At last, deploy the dockers with docker-compose
+ - type: Type of deploy. devel, production...
+```
+docker-compose -p atomizer -f docker/[type]/docker-compose.yml up
+```
+
+After deployment, you should have 4 docker images running:
  - **client:** A nginx static server that serve the frontend
  - **api:** An apache server serving the backend api in cakephp
  - **database:** A mariadb server as api database
