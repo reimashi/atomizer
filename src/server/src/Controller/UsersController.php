@@ -14,6 +14,7 @@
  */
 namespace App\Controller;
 
+use Cake\Network\Exception\InternalErrorException;
 use Cake\Network\Exception\UnauthorizedException;
 use \Firebase\JWT\JWT;
 use Cake\Core\Configure;
@@ -59,23 +60,26 @@ class UsersController extends AppController
                 throw new ConflictException("Username already exists");
             }
             else {
-                $userInstance = $userModel->newEntity(array(
-                    "username" => $body["username"],
-                    "password" => $body["password"]//Security::encrypt($body["password"], Configure::read('Encryption.db'))
-                ));
+                $userInstance = $userModel->newEntity();
 
-                $userModel->save($userInstance);
+                $userInstance->username = $body["username"];
+                $userInstance->password = $body["password"]; //Security::encrypt($body["password"], Configure::read('Encryption.db'))
 
-                $this->response->statusCode(201);
-                $this->set(array(
-                    "id" => $userInstance->id,
-                    "token" => JWT::encode(
-                        [
-                            'sub' => $userInstance->id,
-                            'exp' =>  time() + 604800
-                        ],
-                        Security::salt())
-                ));
+                if ($userModel->save($userInstance)) {
+                    $this->response->statusCode(201);
+                    $this->set(array(
+                        "id" => $userInstance->id,
+                        "token" => JWT::encode(
+                            [
+                                'sub' => $userInstance->id,
+                                'exp' =>  time() + 604800
+                            ],
+                            Security::salt())
+                    ));
+                }
+                else {
+                    throw new InternalErrorException("Database can't save the user");
+                }
             }
         }
         else {
@@ -115,7 +119,7 @@ class UsersController extends AppController
 
                 $userModel = TableRegistry::get('users');
 
-                if ($userModel->exists(array("username" => $body["username"], "password" => $body["password"]))) {
+                if ($userModel->exists(array("username" => $body["username"]))) {
                     $users = $userModel
                         ->find()
                         ->select(['id', 'password'])
@@ -138,8 +142,11 @@ class UsersController extends AppController
                     }
                 }
                 else {
-                    throw new UnauthorizedException("User or password incorrect");
+                    throw new UnauthorizedException("User or password incorrect" . $body["password"]);
                 }
+            }
+            else {
+                throw new BadRequestException(json_encode($validationErrors));
             }
         }
     }
