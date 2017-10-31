@@ -19,6 +19,9 @@ class LoginController {
         this.$scope.password = "test";
     }
 
+    /**
+     * Login user with form data
+     */
     login() {
         let username = this.$scope.username;
         let password = this.$scope.password;
@@ -38,6 +41,9 @@ class LoginController {
         }
     }
 
+    /**
+     * Logout current user
+     */
     logout() {
         this.api.logout();
         this.$scope.isAuthenticated = this.authManager.isAuthenticated();

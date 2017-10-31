@@ -19,6 +19,9 @@ class SignUpController {
         this.$scope.error = "";
     }
 
+    /**
+     * Create new user
+     */
     createUser() {
         if (this.$scope.signupForm.$valid) {
             this.api.userAdd(this.$scope.username, this.$scope.password)

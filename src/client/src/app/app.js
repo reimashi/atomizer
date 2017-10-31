@@ -13,6 +13,9 @@ import {LoginController} from "./controllers/login";
 
 import {ApiService} from "./services/api";
 
+/**
+ * Angular definition of app
+ */
 angular.module('atomizer', [ng_router, angular_jwt, toastr])
     .run(function(authManager) {
         authManager.checkAuthOnRefresh();

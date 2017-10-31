@@ -33,6 +33,11 @@ class FeedController {
         });
     }
 
+    /**
+     * Update feeds from server and parse data
+     * @param update True to force database update in server side
+     * @returns {Promise}
+     */
     updateFeeds(update) {
         let self = this;
         return new Promise((accept, reject) => {
@@ -86,6 +91,10 @@ class FeedController {
         });
     }
 
+    /**
+     * Filter the retrieved feeds with form configurations
+     * @param id ID of the feed to filter
+     */
     filterFeeds(id) {
         let self = this;
         let feedId = Number(id);
@@ -113,6 +122,9 @@ class FeedController {
         }
     }
 
+    /**
+     * Add feed to the user database and force update
+     */
     addFeed() {
         if (this.$scope.newFeedUrl && this.$scope.newFeedUrl.length > 0) {
             let url = String(this.$scope.newFeedUrl);
@@ -140,6 +152,10 @@ class FeedController {
         return null;
     }
 
+    /**
+     * Open a item/article in new tab an tag as readed
+     * @param id Item id
+     */
     openFeed(id) {
         let article = this.getFeed(id);
 
@@ -151,6 +167,10 @@ class FeedController {
         }
     }
 
+    /**
+     * Tag a item/article as readed
+     * @param id Item id
+     */
     discard(id) {
         for(let article in this.feedArticles) {
             if (this.feedArticles[article].id === id) {
@@ -166,6 +186,10 @@ class FeedController {
         }
     }
 
+    /**
+     * Tag a item/article to read later
+     * @param id Item id
+     */
     readLater(id) {
         for(let article in this.feedArticles) {
             if (this.feedArticles[article].id === id) {

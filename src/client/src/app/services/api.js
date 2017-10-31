@@ -2,6 +2,9 @@ import sha1 from 'sha1';
 
 const TOKEN = "token_id";
 
+/**
+ * Api client
+ */
 class ApiService {
     constructor($rootScope, $http, jwtHelper, authManager) {
         this.baseurl = window.location.protocol + "//api." + window.location.hostname + "/index.php";
@@ -11,7 +14,12 @@ class ApiService {
         this.authManager = authManager;
     }
 
-    // Create a new user in the app
+    /**
+     * Create a new user in the app
+     * @param username User name
+     * @param password Plain password
+     * @returns {Promise}
+     */
     userAdd(username, password) {
         return new Promise((accept, reject) => {
             return this.$http.post(this.baseurl + "/users", {
@@ -31,6 +39,12 @@ class ApiService {
         })
     }
 
+    /**
+     * Login a user with username and password
+     * @param username User name
+     * @param password Plain password
+     * @returns {Promise}
+     */
     login(username, password) {
         return new Promise((accept, reject) => {
             return this.$http.post(this.baseurl + "/users/token", {
@@ -48,16 +62,28 @@ class ApiService {
         })
     }
 
+    /**
+     * Internal login
+     * @param token
+     * @private
+     */
     _login(token) {
         sessionStorage.setItem(TOKEN, String(token));
         this.authManager.authenticate();
     }
 
+    /**
+     * Logout current user in the app
+     */
     logout() {
         sessionStorage.removeItem(TOKEN);
         this.authManager.unauthenticate();
     }
 
+    /**
+     * Check if current user is logued in
+     * @returns {boolean}
+     */
     isLoguedin() {
         let now = new Date();
         let token = this.token();
@@ -69,11 +95,18 @@ class ApiService {
         else return false;
     }
 
+    /**
+     * Get JWT token
+     */
     token() {
         return sessionStorage.getItem(TOKEN);
     }
 
-    // Get feeds for the current user
+    /**
+     * Get feeds for the current user
+     * @param update True to update feeds in server
+     * @returns {Promise}
+     */
     getFeeds(update) {
         if (update) update = 1; else update = 0;
 
@@ -87,7 +120,11 @@ class ApiService {
         });
     }
 
-    // Add a feed for the current user
+    /**
+     * Add new feed in server
+     * @param url Url of the feed
+     * @returns {Promise}
+     */
     addFeed(url) {
         return new Promise((accept, reject) => {
             return this.$http.post(this.baseurl + "/feeds", {
@@ -101,12 +138,20 @@ class ApiService {
         });
     }
 
-    // Delete the feed with id for the current user
+    /**
+     * Delete the feed with id for the current user
+     * @param id Feed id
+     */
     delFeed(id) {
-
+        throw new Error("Not implemented");
     }
 
-    // Tag the feed item with [id] as readed.
+    /**
+     * Tag the feed item with [itemId] as readed.
+     * @param feedId Feed id
+     * @param itemId Item/article id
+     * @returns {Promise}
+     */
     tagFeedReaded(feedId, itemId) {
         return new Promise((accept, reject) => {
             return this.$http.put(this.baseurl + "/feeds/tag", {
@@ -122,7 +167,12 @@ class ApiService {
         });
     }
 
-    // Tag the feed item with [id] to read later.
+    /**
+     * Tag the feed item with [itemId] to read later.
+     * @param feedId Feed id
+     * @param itemId Item/article id
+     * @returns {Promise}
+     */
     tagFeedReadLater(feedId, itemId) {
         return new Promise((accept, reject) => {
             return this.$http.put(this.baseurl + "/feeds/tag/", {
