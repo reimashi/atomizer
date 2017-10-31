@@ -38,6 +38,9 @@ class UsersController extends AppController
         $this->Auth->allow(['add', 'token']);
     }
 
+    /**
+     * User creation
+     */
     public function add()
     {
         $validator = new Validator();
@@ -87,7 +90,9 @@ class UsersController extends AppController
         }
     }
 
-    // gettoken and login functions
+    /**
+     * Login and renovation of token functions
+     */
     public function token()
     {
         $user = $this->Auth->identify();

@@ -57,19 +57,12 @@ class AppController extends Controller
                     ],
 
                     'parameter' => 'token',
-
-                    // Boolean indicating whether the "sub" claim of JWT payload
-                    // should be used to query the Users model and get user info.
-                    // If set to `false` JWT's payload is directly returned.
                     'queryDatasource' => true,
                 ]
             ],
 
             'unauthorizedRedirect' => false,
             'checkAuthIn' => 'Controller.initialize',
-
-            // If you don't have a login action in your application set
-            // 'loginAction' to false to prevent getting a MissingRouteException.
             'loginAction' => false
         ]);
     }

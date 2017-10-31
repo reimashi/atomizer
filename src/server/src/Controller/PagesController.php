@@ -35,28 +35,16 @@ class PagesController extends AppController
         parent::initialize();
         $this->loadComponent('RequestHandler');
         $this->RequestHandler->renderAs($this, 'json');
-        $this->Auth->allow(['display']); // Permite sin auth
+        $this->Auth->allow(['display']);
     }
 
     /**
-     * Displays a view
-     *
-     * @return \Cake\Http\Response|null
-     * @throws \Cake\Network\Exception\ForbiddenException When a directory traversal attempt.
-     * @throws \Cake\Network\Exception\NotFoundException When the view file could not
-     *   be found or \Cake\View\Exception\MissingTemplateException in debug mode.
+     * Displays a message.
      */
-    public function displayDefault()
+    public function display()
     {
         $this->set([
             "message" => "This is an api REST. Use the methods."
         ]);
-    }
-
-    public function display()
-    {
-        $url = "https://www.xataka.com/atom.xml";
-        var_dump($this->getFeedData($url)); die();
-
     }
 }

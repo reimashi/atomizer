@@ -6,7 +6,7 @@ Atom/RSS web reader
 - RSS 2.0
 
 ## Known bugs
-- JWT token read on server fails. A bug of [CakePHP lib](https://github.com/ADmad/cakephp-jwt-auth)? Meanwhile, all loguedin users is identified as test user. Login and create new user methods works.
+- Reading JWT token fails on the server . A bug of [CakePHP lib](https://github.com/ADmad/cakephp-jwt-auth)? Meanwhile, all loguedin users are identified as test user. Login and create new user methods works.
 
 ## Deploy with docker
 Before deploy, you can change some configurations editing ```docker/[type]/docker-compose.yml```
@@ -39,10 +39,10 @@ docker-compose -p atomizer -f docker/[type]/docker-compose.yml up
 ```
 
 After deployment, you should have 4 docker images running:
- - **client:** A nginx static server that serve the frontend
+ - **client:** A nginx static server that serves the frontend
  - **api:** An apache server serving the backend api in cakephp
  - **database:** A mariadb server as api database
  - **proxy:** A nginx proxy that connects everything
  
- ## Notes
- - The client is configurated to request the the api in http://api.[client_domain]. Can change this in ```client/src/app/services/api.js```
+## Notes
+ - The client is configurated to request the api in http://api.[client_domain]. Can change this in ```client/src/app/services/api.js```

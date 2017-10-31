@@ -14,17 +14,13 @@
  */
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Core\Exception\Exception;
 use Cake\Http\Client;
 use Cake\Network\Exception\BadRequestException;
-use Cake\Network\Exception\ForbiddenException;
 use Cake\Network\Exception\InternalErrorException;
-use Cake\Network\Exception\NotFoundException;
 use Cake\Validation\Validator;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Xml;
-use Cake\View\Exception\MissingTemplateException;
 
 class FeedsController extends AppController
 {
@@ -34,27 +30,12 @@ class FeedsController extends AppController
         parent::initialize();
         $this->loadComponent('RequestHandler');
         $this->RequestHandler->renderAs($this, 'json');
-        $this->Auth->allow(['index', 'add', 'tag', 'delete']); // TODO: Remove to auth
+        $this->Auth->allow(['index', 'add', 'tag', 'delete']); // TODO: Remove to enable login
     }
 
-    public function indexc()
-    {
-        $feedsModel = TableRegistry::get('feeds');
-        $feeds = $feedsModel->find();
-        $usersFeedsModel = TableRegistry::get('users_feeds');
-        $rels = $usersFeedsModel->find();
-        $itemsModel = TableRegistry::get('items');
-        $items = $itemsModel->find();
-        $usersItemsModel = TableRegistry::get('users_items');
-        $relitems = $usersItemsModel->find();
-        $this->set(array(
-            "feeds" => $feeds,
-            "rels" => $rels,
-            "items" => $items,
-            "relsi" => $relitems
-        ));
-    }
-
+    /**
+     * Get a list of feeds for the actual user
+     */
     public function index() {
         //$userId = $this->Auth->identify()["id"];
         $userId = 1;
@@ -116,7 +97,7 @@ class FeedsController extends AppController
                     $newItemEntity->content = $newItem["content"];
                     $newItemEntity->content_type = $newItem["content_type"];
                     $newItemEntity->author = $newItem["author"];
-                    //$newItemEntity->updated = $newItem["updated"]; FIXME
+                    if($newItem["updated"] instanceof \DateTime) $newItemEntity->updated = $newItem["updated"];
 
                     if (!$itemsModel->save($newItemEntity)) {
                         throw new InternalErrorException("Server can not save a feed update");
@@ -161,6 +142,9 @@ class FeedsController extends AppController
         $this->set($userFeeds);
     }
 
+    /**
+     * Add new feed to the database
+     */
     public function add()
     {
         //$userId = $this->Auth->identify()["id"];
@@ -227,11 +211,19 @@ class FeedsController extends AppController
         }
     }
 
+    /**
+     * Delete a feed in the database
+     * NotImplementedYet!!
+     * @param $id
+     */
     public function delete($id)
     {
         $this->set([]);
     }
 
+    /**
+     * Tag a feed_user property
+     */
     public function tag()
     {
         //$userId = $this->Auth->identify()["id"]; TODO: Uncomment to enable login
@@ -280,6 +272,11 @@ class FeedsController extends AppController
         }
     }
 
+    /**
+     * Download remote feed and parse the data
+     * @param $url Url of feed
+     * @return array Feed data
+     */
     private function getFeedData($url) {
         $http = new Client(["redirect" => 3]);
         $response = $http->get($url);
@@ -292,6 +289,12 @@ class FeedsController extends AppController
         }
     }
 
+    /**
+     * Parse feed xml to a more friendly format
+     * @param $url Url of feed
+     * @param $body XML code
+     * @return array Feed data
+     */
     private function parseFeed($url, $body) {
         $xml = Xml::build($body);
         $feed = Xml::toArray($xml);
