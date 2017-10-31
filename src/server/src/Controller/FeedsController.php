@@ -106,7 +106,7 @@ class FeedsController extends AppController
                     $newItemEntity->remoteid = $newItem["remote_id"];
                     $newItemEntity->url = $newItem["url"];
                     $newItemEntity->title = $newItem["title"];
-                    $newItemEntity->summary = substr(urlencode($newItem["summary"]), 0, 65000);
+                    $newItemEntity->summary = substr(strip_tags($newItem["summary"], "<a><p><b><i>"), 0, 512) . "...";
                     $newItemEntity->content = $newItem["content"];
                     $newItemEntity->content_type = $newItem["content_type"];
                     $newItemEntity->author = $newItem["author"];

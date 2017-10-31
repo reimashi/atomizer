@@ -1,13 +1,12 @@
 class FeedController {
-    constructor($scope, $location, authManager, apiService, toastr) {
+    constructor($scope, $location, $timeout, authManager, apiService) {
         if (!authManager.isAuthenticated()) {
             $location.path("/");
         }
 
         this.$scope = $scope;
+        this.$timeout = $timeout;
         this.api = apiService;
-        this.toastr = toastr;
-        toastr.clear([toast]);
 
         // Scope functions
         $scope.addFeed = () => this.addFeed();
@@ -17,69 +16,86 @@ class FeedController {
         // Variable definitions
         this.$scope.newFeedUrl = "";
         this.$scope.feedFilter = -1;
-        this.$scope.feeds = [{ id: 1, name: "Xataka" }, { id: 2, name: "Genbeta" }];
-        this.feedArticles = [{ id: 1, feed: 1, name: "Xataka", title: "Ejemplo de feed", "description": "Ejemplo de descripción con <b>html incrustado</b>", updated: new Date() }];
-        this.$scope.feedsFiltered = this.feedArticles;
+        this.$scope.feeds = [];
+        this.feedArticles = [];
+        this.$scope.feedsFiltered = [];
+
+        this.updateFeeds().then(() => { this.updateFeeds(true); });
 
         let self = this;
-        this.updateFeeds();
-
         this.$scope.$watch("feedFilter", (newValue, oldValue) => {
             if (newValue === oldValue) { return; }
             self.filterFeeds(newValue);
         });
     }
 
-    updateFeeds() {
+    updateFeeds(update) {
         let self = this;
-        this.api.getFeeds()
-            .then((data) => {
-                let tmpFeeds = [];
+        return new Promise((accept, reject) => {
+            this.api.getFeeds(Boolean(update))
+                .then((data) => {
+                    let tmpFeeds = [];
 
-                for (let fid in data) {
-                    tmpFeeds.push({
-                        id: data[fid].id,
-                        name: data[fid].title,
-                    });
-                }
-
-                let tmpArticles = [];
-
-                for (let fid in data) {
-                    for (let atid in data[fid].items) {
-                        tmpArticles.push({
-                            id: data[fid].items[atid].id,
-                            feed: data[fid].id,
+                    for (let fid in data) {
+                        tmpFeeds.push({
+                            id: data[fid].id,
                             name: data[fid].title,
-                            title: data[fid].items[atid].title,
-                            description: data[fid].items[atid].summary,
-                            updated: data[fid].items[atid].updated
                         });
                     }
-                }
 
-                self.$scope.feeds = tmpFeeds;
-                self.feedArticles = tmpArticles;
-                self.filterFeeds(self.$scope.feedFilter);
-            })
-            .catch((err) => { console.error(err); });
+                    let tmpArticles = [];
+
+                    for (let fid in data) {
+                        for (let atid in data[fid].items) {
+                            tmpArticles.push({
+                                id: data[fid].items[atid].id,
+                                feed: data[fid].id,
+                                name: data[fid].title,
+                                title: data[fid].items[atid].title,
+                                description: data[fid].items[atid].summary,
+                                updated: data[fid].items[atid].updated
+                            });
+                        }
+                    }
+
+                    self.$timeout(function() {
+                        self.$scope.$apply(() => {
+                            self.$scope.feeds = tmpFeeds;
+                            self.feedArticles = tmpArticles;
+                            self.filterFeeds(self.$scope.feedFilter);
+                        });
+                    });
+
+                    accept();
+                })
+                .catch((err) => { console.error(err); reject(err); });
+        });
     }
 
     filterFeeds(id) {
+        let self = this;
         let feedId = Number(id);
 
         if (feedId !== -1) {
             let tmpFiltered = [];
-            for (let ind in this.feedArticles) {
-                if (this.feedArticles[ind].feed === feedId) {
-                    tmpFiltered.push(this.feedArticles[ind]);
+            for (let ind in self.feedArticles) {
+                if (self.feedArticles[ind].feed === feedId) {
+                    tmpFiltered.push(self.feedArticles[ind]);
                 }
             }
 
-            this.$scope.feedsFiltered = tmpFiltered;
+            self.$timeout(function() {
+                self.$scope.$apply(() => {
+                    self.$scope.feedsFiltered = tmpFiltered;
+                });
+            });
         }
         else {
-            this.$scope.feedsFiltered = this.feedArticles;
+            self.$timeout(function() {
+                self.$scope.$apply(() => {
+                    self.$scope.feedsFiltered = self.feedArticles;
+                });
+            });
         }
     }
 
@@ -89,7 +105,7 @@ class FeedController {
 
             this.api.addFeed(url)
                 .then(() => {
-                    // Reload
+                    this.updateFeeds(true);
                 })
                 .catch((err) => {
                     console.error(err);

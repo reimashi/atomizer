@@ -74,9 +74,11 @@ class ApiService {
     }
 
     // Get feeds for the current user
-    getFeeds() {
+    getFeeds(update) {
+        if (update) update = 1; else update = 0;
+
         return new Promise((accept, reject) => {
-            return this.$http.get(this.baseurl + "/feeds")
+            return this.$http.get(this.baseurl + "/feeds", { params: { update: update } })
                 .then((response) => {
                     if (response.status === 200 || response.status === 201) accept(response.data);
                     else reject(response.data);
