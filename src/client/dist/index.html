@@ -7,35 +7,42 @@
     <script src="js/atomizer.js"></script>
 </head>
 <body>
-
-<nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                    aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">Atomizer</a>
+<header class="header clearfix">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Atomizer</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <form name="loginForm" class="navbar-form navbar-right" ng-if="!isAuthenticated" ng-controller="loginController">
+                    <div class="form-group">
+                        <input type="text" placeholder="Username" class="form-control" ng-model="username" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" placeholder="Password" class="form-control" ng-model="password" required>
+                    </div>
+                    <button class="btn btn-success" ng-click="login()">Sign in</button>
+                    <a href="#!/signup" class="btn btn-info">Sign up</a>
+                </form>
+                <div class="navbar-form navbar-right" ng-if="isAuthenticated" ng-controller="loginController">
+                    <a href="#" class="btn btn-danger" ng-click="logout()">Sign out</a>
+                </div>
+            </div><!--/.navbar-collapse -->
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <form class="navbar-form navbar-right">
-                <div class="form-group">
-                    <input type="text" placeholder="Email" class="form-control">
-                </div>
-                <div class="form-group">
-                    <input type="password" placeholder="Password" class="form-control">
-                </div>
-                <button class="btn btn-success" ng-click="login">Sign in</button>
-                <a href="#!/singup" class="btn btn-info">Sign up</a>
-            </form>
-        </div><!--/.navbar-collapse -->
-    </div>
-</nav>
-<div class="page-content">
+    </nav>
+</header>
+<div class="page-content container">
     <div ng-view class="view-animate"></div>
 </div>
+<footer class="footer">
+    <p>Atomizer - <a href="https://github.com/reimashi/atomizer" target="_blank">Github</a></p>
+</footer>
 </body>
 </html>

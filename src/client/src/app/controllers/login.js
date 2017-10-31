@@ -1,25 +1,48 @@
-class SingUpController {
-    constructor($scope, $http) {
+class LoginController {
+    constructor($scope, $location, $route, apiService, authManager) {
         // Service loads
         this.$scope = $scope;
+        this.$location = $location;
+        this.$route = $route;
+        this.api = apiService;
+        this.authManager = authManager;
 
         // Scope functions
-        $scope.test = () => this.test;
+        $scope.login = () => this.login();
+        $scope.logout = () => this.logout();
     }
-
-    get scope() { return this.$scope; }
 
     $onInit() {
         // Variable definitions
-        this.$scope.username = "";
-        this.$scope.password = "";
+        this.$scope.isAuthenticated = this.authManager.isAuthenticated();
+        this.$scope.username = "test";
+        this.$scope.password = "test";
     }
 
     login() {
-        console.log(this.$scope);
-        console.log(this.username);
-        console.log(this.password);
+        let username = this.$scope.username;
+        let password = this.$scope.password;
+
+        if (!this.api.isLoguedin()) {
+            if (this.$scope.loginForm.$valid) {
+                this.api.login(username, password)
+                    .then(() => {
+                        this.$scope.isAuthenticated = this.authManager.isAuthenticated();
+                        this.$route.reload();
+                    })
+                    .catch((err) => {
+                        if (err) alert("User or password incorrect");
+                        else console.error("Unknown error on login");
+                    });
+            }
+        }
+    }
+
+    logout() {
+        this.api.logout();
+        this.$scope.isAuthenticated = this.authManager.isAuthenticated();
+        this.$location.path("/main");
     }
 }
 
-export { SingUpController };
+export { LoginController };

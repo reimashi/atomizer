@@ -1,9 +1,37 @@
-<main>
-  <h1 class="title">Hello from Angular !</h1>
-
-  <!-- Images (and assets) are parsed and loaded from within the public directory -->
-  <img src="/img/logo.png">
-</main>
-<footer>
-  <a ng-href="{{app.url}}">Webpack Angular Starter</a>
-</footer>
+<div class="row" ng-controller="feedController">
+    <div id="feed-controls" class="row">
+        <form>
+            <div class="col-xs-12 col-md-6">
+                <div class="form-group">
+                    <select id="feedFilter" class="form-control" ng-model="feedFilter">
+                        <option ng-value="-1">All</option>
+                        <option ng-repeat="feed in feeds" ng-value="feed.id">{{feed.name}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Set the url of the new feed...">
+                    <span class="input-group-btn">
+                        <button class="btn btn-success" type="button">Add feed</button>
+                    </span>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div id="feed-list" class="col-md-12">
+        <div class="col-md-12" id="feed-card" ng-repeat="feed in feedsFiltered">
+            <div class="feed-card-content">
+                <div>
+                    <span class="feed-readlater"><button class="btn btn-xs btn-primary" ng-click="readLater(feed.id)" title="Mark this article to read later">Read later</button></span>
+                    <span class="feed-discard"><button class="btn btn-xs btn-danger" ng-click="discard(feed.id)" title="Mark this article as readed">Discard</button></span>
+                    <span class="feed-delete"><button class="btn btn-xs btn-danger" ng-click="delete(feed.feed)" title="Remove this feed origin">Remove</button></span>
+                    <span class="feed-name">{{feed.name}}</span>
+                </div>
+                <div class="feed-title"><a href="{{feed.url}}" target="_blank" title="Open '{{feed.title}}' in new tab">{{feed.title}}</a></div>
+                <span class="feed-date right">{{feed.updated.getTime() | date:"MM/dd/yyyy 'at' h:mma"}}</span>
+                <div class="feed-description" ng-bind-html="feed.description | safehtml"></div>
+            </div>
+        </div>
+    </div>
+</div>

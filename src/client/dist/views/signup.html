@@ -1,0 +1,11 @@
+<div class="container" ng-controller="signupController">
+    <form name="signupForm" class="form-signup">
+        <h2 class="form-signup-heading">Please sign in</h2>
+        <label for="inputNickname" class="sr-only">Nickname</label>
+        <input type="text" id="inputNickname" class="form-control" placeholder="User nickname" ng-model="username" required autofocus>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="inputPassword" class="form-control" placeholder="Password" ng-model="password" required pattern="[ -~]{4,24}" title="Only letters or numbers">
+        <button class="btn btn-lg btn-primary btn-block" ng-click="createUser()">Create account</button>
+        <p ng-if="error">{{error}}</p>
+    </form>
+</div>
