@@ -32,11 +32,13 @@ npm install
 webpack
 ```
 
-At last, deploy the dockers with docker-compose
+Deploy the dockers with docker-compose
  - type: Type of deploy. devel, production...
 ```
 docker-compose -p atomizer -f docker/[type]/docker-compose.yml up
 ```
+
+At last, restore the database schema. (```/server/config/schema/app.sql```)
 
 After deployment, you should have 4 docker images running:
  - **client:** A nginx static server that serves the frontend
