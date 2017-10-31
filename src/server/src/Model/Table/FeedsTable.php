@@ -9,7 +9,6 @@ use Cake\Validation\Validator;
 /**
  * Feeds Model
  *
- * @property |\Cake\ORM\Association\BelongsTo $Remotes
  * @property \App\Model\Table\UsersTable|\Cake\ORM\Association\BelongsToMany $Users
  *
  * @method \App\Model\Entity\Feed get($primaryKey, $options = [])
@@ -41,10 +40,6 @@ class FeedsTable extends Table
 
         $this->addBehavior('Timestamp');
 
-        $this->belongsTo('Remotes', [
-            'foreignKey' => 'remote_id',
-            'joinType' => 'INNER'
-        ]);
         $this->belongsToMany('Users', [
             'foreignKey' => 'feed_id',
             'targetForeignKey' => 'user_id',
@@ -83,6 +78,10 @@ class FeedsTable extends Table
             ->scalar('description')
             ->allowEmpty('description');
 
+        $validator
+            ->scalar('remote_id')
+            ->allowEmpty('remote_id');
+
         return $validator;
     }
 
@@ -96,7 +95,6 @@ class FeedsTable extends Table
     public function buildRules(RulesChecker $rules)
     {
         $rules->add($rules->isUnique(['url']));
-        $rules->add($rules->existsIn(['remote_id'], 'Remotes'));
 
         return $rules;
     }

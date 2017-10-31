@@ -11,9 +11,9 @@
             </div>
             <div class="col-xs-12 col-md-6">
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Set the url of the new feed...">
+                    <input type="url" class="form-control" placeholder="Set the url of the new feed..." ng-model="newFeedUrl">
                     <span class="input-group-btn">
-                        <button class="btn btn-success" type="button">Add feed</button>
+                        <button class="btn btn-success" type="button" ng-click="addFeed()">Add feed</button>
                     </span>
                 </div>
             </div>

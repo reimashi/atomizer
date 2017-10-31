@@ -1,17 +1,19 @@
 class FeedController {
-    constructor($scope, $location, authManager) {
+    constructor($scope, $location, authManager, apiService) {
         if (!authManager.isAuthenticated()) {
             $location.path("/");
         }
 
         this.$scope = $scope;
+        this.api = apiService;
 
         // Scope functions
-        $scope.sanitize = () => this.sanitize();
+        $scope.addFeed = () => this.addFeed();
     }
 
     $onInit() {
         // Variable definitions
+        this.$scope.newFeedUrl = "";
         this.$scope.feedFilter = -1;
         this.$scope.feeds = [{ id: 1, name: "Xataka" }, { id: 2, name: "Genbeta" }];
         this.feedArticles = [{ id: 1, feed: 1, name: "Xataka", title: "Ejemplo de feed", "description": "Ejemplo de descripción con <b>html incrustado</b>", updated: new Date() }];
@@ -42,7 +44,19 @@ class FeedController {
         }
     }
 
-    sanitize() { }
+    addFeed() {
+        if (this.$scope.newFeedUrl && this.$scope.newFeedUrl.length > 0) {
+            let url = String(this.$scope.newFeedUrl);
+
+            this.api.addFeed(url)
+                .then(() => {
+                    // Reload
+                })
+                .catch((err) => {
+                    console.error(err);
+                })
+        }
+    }
 }
 
 export { FeedController };

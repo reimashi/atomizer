@@ -83,7 +83,16 @@ class ApiService {
 
     // Add a feed for the current user
     addFeed(url) {
-
+        return new Promise((accept, reject) => {
+            return this.$http.post(this.baseurl + "/feeds", {
+                url: String(url).trim()
+            })
+                .then((response) => {
+                    if (response.status === 200 || response.status === 201) accept(response.data);
+                    else reject(response.data);
+                })
+                .catch((err) => reject(err));
+        });
     }
 
     // Delete the feed with id for the current user
