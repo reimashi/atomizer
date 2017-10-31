@@ -8,7 +8,7 @@ Atom/RSS web reader
 ## Known bugs
 - JWT token read on server fails. A bug of [CakePHP lib](https://github.com/ADmad/cakephp-jwt-auth)? Meanwhile, all loguedin users is identified as test user. Login and create new user methods works.
 
-## Deploy
+## Deploy with docker
 Before deploy, you can change some configurations editing ```docker/[type]/docker-compose.yml```
  - Database configuration
  - DNS Domains
@@ -43,3 +43,6 @@ After deployment, you should have 4 docker images running:
  - **api:** An apache server serving the backend api in cakephp
  - **database:** A mariadb server as api database
  - **proxy:** A nginx proxy that connects everything
+ 
+ ## Notes
+ - The client is configurated to request the the api in http://api.[client_domain]. Can change this in ```client/src/app/services/api.js```
