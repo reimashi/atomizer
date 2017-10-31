@@ -74,11 +74,15 @@ class ApiService {
     }
 
     // Get feeds for the current user
-    getFeeds(limit, step) {
-        return [{
-            id: 1,
-            title: "test title"
-        }];
+    getFeeds() {
+        return new Promise((accept, reject) => {
+            return this.$http.get(this.baseurl + "/feeds")
+                .then((response) => {
+                    if (response.status === 200 || response.status === 201) accept(response.data);
+                    else reject(response.data);
+                })
+                .catch((err) => reject(err));
+        });
     }
 
     // Add a feed for the current user

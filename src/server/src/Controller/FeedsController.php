@@ -52,45 +52,87 @@ class FeedsController extends AppController
     public function index() {
         //$user = $this->Auth->identify();
         $userId = 1;
+        $update = false;
 
-        $feedsRelModel = TableRegistry::get('UsersFeed');
+        $feedsRelModel = TableRegistry::get('users_feeds');
         $feedsModel = TableRegistry::get('feeds');
+        $itemsModel = TableRegistry::get('items');
 
-        //Miramos en la relacion
+        // Get user feed ids
         $feedsRel = $feedsRelModel->find()
-            ->select([])
-            ->where(['user_id=' => $user["id"]])
-            ->limit(50);
+            ->select(['feed_id'])
+            ->where(['user_id =' => $userId]);
+
+        $userFeedsIds = array();
+        foreach ($feedsRel as $userFeeds) {
+            array_push($userFeedsIds, $userFeeds->feed_id);
+        }
+
+        // Get feed instances
+        $userFeeds = array();
+        foreach ($userFeedsIds as $userFeedId) {
+            $feedsQuery = $feedsModel->find()
+                ->where(['id =' => $userFeedId]);
+
+            array_push($userFeeds, $feedsQuery->first()->toArray());
+        }
+
+        // If update required
+        if ($update) {
+            foreach ($userFeeds as $userFeed) {
+                // Get old and new values
+                $updatedData = $this->getFeedData($userFeed["url"])["items"];
+                $feedItemsQuery = $itemsModel->find()
+                    ->where(['feed_id =' => $userFeed["id"]]);
+
+                // Get the remote ids of all items in database
+                $localIds = array();
+                foreach ($feedItemsQuery as $feedItemInstance) {
+                    array_push($localIds, $feedItemInstance->remoteid);
+                }
+
+                // Filter the list of items not saved in database yet
+                $notUpdatedYet = array();
+                foreach ($updatedData as $item) {
+                    if (!in_array($item["remote_id"], $localIds)) array_push($notUpdatedYet, $item);
+                }
+
+                // Save the new items
+                foreach ($notUpdatedYet as $newItem) {
+                    $newItemEntity = $itemsModel->newEntity();
 
 
-        foreach ($feedsRel as $feedRel) {
-            //Y miramos de los que tenemos en la relacion uno a uno
-            $oldFeeds = $feedsModel->find()
-                ->select([])
-                ->where(['id=' => $feedRel["id"]])
-                ->limit(50);
-            foreach ($oldFeeds as $oldFeed) {
-                //Lo obtenemos de nuevo
-                $newFeed = $this->getFeedData($oldFeed->url);
-                //Lo comparamos
-                if($oldFeed  = $newFeed) {
-                    //Eliminamos el repetido
-                    $feedsRel.removeFromArray($oldFeed);
+                    $newItemEntity->feed_id = $userFeed["id"];
+                    $newItemEntity->remoteid = $newItem["remote_id"];
+                    $newItemEntity->url = $newItem["url"];
+                    $newItemEntity->title = $newItem["title"];
+                    $newItemEntity->summary = substr(urlencode($newItem["summary"]), 0, 65000);
+                    $newItemEntity->content = $newItem["content"];
+                    $newItemEntity->content_type = $newItem["content_type"];
+                    $newItemEntity->author = $newItem["author"];
+                    //$newItemEntity->updated = $newItem["updated"];
+
+                    if (!$itemsModel->save($newItemEntity)) {
+                        throw new InternalErrorException("Server can not save a feed uptade");
+                    }
                 }
             }
         }
 
-        //devolver al usuario una lista de feeds con los ultimos... yo que se, 50 articulos de cada uno
-        $this->set($feedOut);
+        // Populate each feed with items
+        foreach ($userFeeds as &$userFeed) {
+            $itemsQuery = $itemsModel->find()
+                ->where(['feed_id =' => $userFeed["id"]]);
+
+            $userFeed["items"] = $itemsQuery->toArray();
+        }
+
+        $this->set($userFeeds);
     }
 
     public function add()
     {
-        $user = $this->Auth->identify();
-        var_dump($_SERVER['HTTP_AUTHORIZATION']);
-        var_dump($_ENV['HTTP_AUTHORIZATION']);
-        var_dump($user); die();
-
+        //$userId = $this->Auth->identify()["id"];
         $userId = 1;
 
         $validator = new Validator();
@@ -113,7 +155,7 @@ class FeedsController extends AppController
                 $feedInstance = $feedsModel->newEntity();
 
                 $feedInstance->url = $body["url"];
-                $feedInstance->remote_id = $feedData["remote_id"];
+                $feedInstance->remoteid = $feedData["remote_id"];
                 $feedInstance->web_url = $feedData["web_url"];
                 $feedInstance->title = $feedData["title"];
                 $feedInstance->updated = $feedData["updated"];
@@ -193,7 +235,7 @@ class FeedsController extends AppController
             "title" => null,
             "summary" => null,
             "content" => null,
-            "contentType" => null,
+            "content_type" => null,
             "author" => null,
             "updated" => null
         );

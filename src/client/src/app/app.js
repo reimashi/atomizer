@@ -4,6 +4,7 @@ import '../style/app.less';
 import angular from 'angular';
 import ng_router from 'angular-route';
 import angular_jwt from 'angular-jwt';
+import toastr from 'angular-toastr';
 
 import {FeedController} from "./controllers/feeds";
 import {SignUpController} from "./controllers/signup";
@@ -12,7 +13,7 @@ import {LoginController} from "./controllers/login";
 
 import {ApiService} from "./services/api";
 
-angular.module('atomizer', [ng_router, angular_jwt])
+angular.module('atomizer', [ng_router, angular_jwt, toastr])
     .run(function(authManager) {
         authManager.checkAuthOnRefresh();
         authManager.redirectWhenUnauthenticated();
