@@ -2,6 +2,7 @@ USE atomizer;
 
 DROP TABLE IF EXISTS users_feeds;
 DROP TABLE IF EXISTS users_items;
+DROP TABLE IF EXISTS items;
 
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
@@ -37,7 +38,6 @@ CREATE TABLE users_feeds (
     FOREIGN KEY fk_users_feeds_feed(feed_id) REFERENCES feeds(id)
 ) CHARSET=utf8mb4;
 
-DROP TABLE IF EXISTS items;
 CREATE TABLE items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     feed_id INT NOT NULL,
