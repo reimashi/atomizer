@@ -18,14 +18,15 @@ DROP TABLE IF EXISTS feeds;
 CREATE TABLE feeds (
     id INT AUTO_INCREMENT PRIMARY KEY,
     url VARCHAR(255) NOT NULL,
-    remote_id VARCHAR(255) NOT NULL,
+    remoteid VARCHAR(255) NOT NULL,
     web_url VARCHAR(255),
     title VARCHAR(255) NOT NULL,
     description VARCHAR(255),
     created DATETIME,
     updated DATETIME,
     modified DATETIME,
-    UNIQUE KEY (url)
+    UNIQUE KEY (url),
+    UNIQUE KEY (remoteid)
 ) CHARSET=utf8mb4;
 
 CREATE TABLE users_feeds (
@@ -39,7 +40,8 @@ CREATE TABLE users_feeds (
 DROP TABLE IF EXISTS items;
 CREATE TABLE items (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    remote_id VARCHAR(255) NOT NULL,
+    feed_id INT NOT NULL,
+    remoteid VARCHAR(255) NOT NULL,
     url VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
     summary TINYTEXT,
@@ -49,7 +51,8 @@ CREATE TABLE items (
     created DATETIME,
     updated DATETIME,
     modified DATETIME,
-    UNIQUE KEY (remote_id)
+    UNIQUE KEY (remoteid),
+    FOREIGN KEY fk_items_feed(feed_id) REFERENCES feeds(id)
 ) CHARSET=utf8mb4;
 
 CREATE TABLE users_items (

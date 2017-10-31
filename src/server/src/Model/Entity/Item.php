@@ -7,7 +7,8 @@ use Cake\ORM\Entity;
  * Item Entity
  *
  * @property int $id
- * @property string $remote_id
+ * @property int $feed_id
+ * @property string $remoteid
  * @property string $url
  * @property string $title
  * @property string $summary
@@ -34,7 +35,8 @@ class Item extends Entity
      * @var array
      */
     protected $_accessible = [
-        'remote_id' => true,
+        'feed_id' => true,
+        'remoteid' => true,
         'url' => true,
         'title' => true,
         'summary' => true,

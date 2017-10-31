@@ -8,7 +8,7 @@ use Cake\ORM\Entity;
  *
  * @property int $id
  * @property string $url
- * @property string $remote_id
+ * @property string $remoteid
  * @property string $web_url
  * @property string $title
  * @property string $description
@@ -32,7 +32,7 @@ class Feed extends Entity
      */
     protected $_accessible = [
         'url' => true,
-        'remote_id' => true,
+        'remoteid' => true,
         'web_url' => true,
         'title' => true,
         'description' => true,

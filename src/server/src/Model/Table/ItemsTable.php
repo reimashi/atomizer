@@ -9,7 +9,7 @@ use Cake\Validation\Validator;
 /**
  * Items Model
  *
- * @property \App\Model\Table\RemotesTable|\Cake\ORM\Association\BelongsTo $Remotes
+ * @property |\Cake\ORM\Association\BelongsTo $Feeds
  * @property \App\Model\Table\UsersTable|\Cake\ORM\Association\BelongsToMany $Users
  *
  * @method \App\Model\Entity\Item get($primaryKey, $options = [])
@@ -41,8 +41,8 @@ class ItemsTable extends Table
 
         $this->addBehavior('Timestamp');
 
-        $this->belongsTo('Remotes', [
-            'foreignKey' => 'remote_id',
+        $this->belongsTo('Feeds', [
+            'foreignKey' => 'feed_id',
             'joinType' => 'INNER'
         ]);
         $this->belongsToMany('Users', [
@@ -63,6 +63,12 @@ class ItemsTable extends Table
         $validator
             ->integer('id')
             ->allowEmpty('id', 'create');
+
+        $validator
+            ->scalar('remoteid')
+            ->requirePresence('remoteid', 'create')
+            ->notEmpty('remoteid')
+            ->add('remoteid', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
 
         $validator
             ->scalar('url')
@@ -102,7 +108,8 @@ class ItemsTable extends Table
      */
     public function buildRules(RulesChecker $rules)
     {
-        $rules->add($rules->existsIn(['remote_id'], 'Remotes'));
+        $rules->add($rules->isUnique(['remoteid']));
+        $rules->add($rules->existsIn(['feed_id'], 'Feeds'));
 
         return $rules;
     }

@@ -9,6 +9,7 @@ use Cake\Validation\Validator;
 /**
  * Feeds Model
  *
+ * @property |\Cake\ORM\Association\HasMany $Items
  * @property \App\Model\Table\UsersTable|\Cake\ORM\Association\BelongsToMany $Users
  *
  * @method \App\Model\Entity\Feed get($primaryKey, $options = [])
@@ -40,6 +41,9 @@ class FeedsTable extends Table
 
         $this->addBehavior('Timestamp');
 
+        $this->hasMany('Items', [
+            'foreignKey' => 'feed_id'
+        ]);
         $this->belongsToMany('Users', [
             'foreignKey' => 'feed_id',
             'targetForeignKey' => 'user_id',
@@ -66,6 +70,12 @@ class FeedsTable extends Table
             ->add('url', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
 
         $validator
+            ->scalar('remoteid')
+            ->requirePresence('remoteid', 'create')
+            ->notEmpty('remoteid')
+            ->add('remoteid', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
+
+        $validator
             ->scalar('web_url')
             ->allowEmpty('web_url');
 
@@ -77,10 +87,6 @@ class FeedsTable extends Table
         $validator
             ->scalar('description')
             ->allowEmpty('description');
-
-        $validator
-            ->scalar('remote_id')
-            ->allowEmpty('remote_id');
 
         return $validator;
     }
@@ -95,6 +101,7 @@ class FeedsTable extends Table
     public function buildRules(RulesChecker $rules)
     {
         $rules->add($rules->isUnique(['url']));
+        $rules->add($rules->isUnique(['remoteid']));
 
         return $rules;
     }
