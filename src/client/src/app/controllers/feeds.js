@@ -10,10 +10,14 @@ class FeedController {
 
         // Scope functions
         $scope.addFeed = () => this.addFeed();
+        $scope.openFeed = (id) => this.openFeed(id);
+        $scope.discard = (id) => this.discard(id);
+        $scope.readLater = (id) => this.readLater(id);
     }
 
     $onInit() {
         // Variable definitions
+        this.$scope.notEdit = false;
         this.$scope.newFeedUrl = "";
         this.$scope.feedFilter = -1;
         this.$scope.feeds = [];
@@ -32,6 +36,7 @@ class FeedController {
     updateFeeds(update) {
         let self = this;
         return new Promise((accept, reject) => {
+            self.$scope.notUpdate = true;
             this.api.getFeeds(Boolean(update))
                 .then((data) => {
                     let tmpFeeds = [];
@@ -47,13 +52,17 @@ class FeedController {
 
                     for (let fid in data) {
                         for (let atid in data[fid].items) {
+
                             tmpArticles.push({
                                 id: data[fid].items[atid].id,
                                 feed: data[fid].id,
+                                url: data[fid].items[atid].url,
                                 name: data[fid].title,
                                 title: data[fid].items[atid].title,
                                 description: data[fid].items[atid].summary,
-                                updated: data[fid].items[atid].updated
+                                updated: data[fid].items[atid].updated,
+                                read_later: data[fid].items[atid].read_later,
+                                readed: data[fid].items[atid].readed,
                             });
                         }
                     }
@@ -66,9 +75,14 @@ class FeedController {
                         });
                     });
 
+                    self.$scope.notUpdate = false;
                     accept();
                 })
-                .catch((err) => { console.error(err); reject(err); });
+                .catch((err) => {
+                    console.error(err);
+                    self.$scope.notUpdate = false;
+                    reject(err);
+                });
         });
     }
 
@@ -110,6 +124,60 @@ class FeedController {
                 .catch((err) => {
                     console.error(err);
                 })
+        }
+    }
+
+    /**
+     * Get the feed by id
+     * @param id
+     * @returns feed or null
+     */
+    getFeed(id) {
+        for(let article in this.feedArticles) {
+            if (this.feedArticles[article].id === id)
+                return this.feedArticles[article];
+        }
+        return null;
+    }
+
+    openFeed(id) {
+        let article = this.getFeed(id);
+
+        if (article !== null) {
+            let win = window.open(article.url, '_blank');
+            win.focus();
+
+            this.discard(id);
+        }
+    }
+
+    discard(id) {
+        for(let article in this.feedArticles) {
+            if (this.feedArticles[article].id === id) {
+                // Tag local
+                this.feedArticles[article].readed = true;
+
+                // Tag remote
+                this.api.tagFeedReaded(this.feedArticles[article].feed, id)
+                    .catch((err) => console.error(err));
+
+                break;
+            }
+        }
+    }
+
+    readLater(id) {
+        for(let article in this.feedArticles) {
+            if (this.feedArticles[article].id === id) {
+                // Tag local
+                this.feedArticles[article].read_later = true;
+
+                // Tag remote
+                this.api.tagFeedReadLater(this.feedArticles[article].feed, id)
+                    .catch((err) => console.error(err));
+
+                break;
+            }
         }
     }
 }

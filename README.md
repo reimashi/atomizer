@@ -5,6 +5,9 @@ Atom/RSS web reader
 - Atom 1.0 (rfc5023)
 - RSS 2.0
 
+## Known bugs
+- JWT token read on server fails. A bug of [CakePHP lib](https://github.com/ADmad/cakephp-jwt-auth)? Meanwhile, all loguedin users is identified as test user. Login and create new user methods works.
+
 ## Deploy
 Before deploy, you can change some configurations editing ```docker/[type]/docker-compose.yml```
  - Database configuration

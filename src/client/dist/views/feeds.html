@@ -19,16 +19,27 @@
             </div>
         </form>
     </div>
+    <div class="row col-md-12 centered-text" ng-if="notUpdate">
+        <div class="col-xs-6 col-md-4 col-xs-offset-3 col-md-offset-4">
+            <div class="alert alert-info" role="alert">Updating feeds...</div>
+        </div>
+    </div>
     <div id="feed-list" class="col-md-12">
         <div class="col-md-12" id="feed-card" ng-repeat="feed in feedsFiltered">
             <div class="feed-card-content">
                 <div>
-                    <span class="feed-readlater"><button class="btn btn-xs btn-primary" ng-click="readLater(feed.id)" title="Mark this article to read later">Save for later</button></span>
-                    <span class="feed-discard"><button class="btn btn-xs btn-info" ng-click="discard(feed.id)" title="Mark this article as readed">Mark as readed</button></span>
-                    <span class="feed-delete"><button class="btn btn-xs btn-danger" ng-click="delete(feed.feed)" title="Remove this feed origin">Remove</button></span>
+                    <span class="feed-readlater">
+                        <button class="btn btn-xs btn-primary" ng-if="!feed.read_later" ng-click="readLater(feed.id)" title="Mark this article to read later" ng-disabled="notUpdate">Save for later</button>
+                        <span ng-if="feed.read_later" class="label label-primary">Saved to read later</span>
+                    </span>
+                    <span class="feed-discard">
+                        <button class="btn btn-xs btn-info" ng-if="!feed.readed" ng-click="discard(feed.id)" title="Mark this article as readed" ng-disabled="notUpdate">Mark as readed</button>
+                        <span ng-if="feed.readed" class="label label-info">Readed</span>
+                    </span>
+                    <!--<span class="feed-delete"><button class="btn btn-xs btn-danger" ng-click="delete(feed.feed)" title="Remove this feed origin">Remove</button></span>-->
                     <span class="feed-name">{{feed.name}}</span>
                 </div>
-                <div class="feed-title"><a href="{{feed.url}}" target="_blank" title="Open '{{feed.title}}' in new tab">{{feed.title}}</a></div>
+                <div class="feed-title"><a title="Open '{{feed.title}}' in new tab" ng-click="openFeed(feed.id); $event.stopPropagation();">{{feed.title}}</a></div>
                 <span class="feed-date right">{{feed.updated.getTime() | date:"MM/dd/yyyy 'at' h:mma"}}</span>
                 <div class="feed-description" ng-bind-html="feed.description | safehtml"></div>
             </div>

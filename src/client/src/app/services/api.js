@@ -107,13 +107,35 @@ class ApiService {
     }
 
     // Tag the feed item with [id] as readed.
-    tagFeedReaded(id) {
-
+    tagFeedReaded(feedId, itemId) {
+        return new Promise((accept, reject) => {
+            return this.$http.put(this.baseurl + "/feeds/tag", {
+                feed_id: Number(feedId),
+                item_id: Number(itemId),
+                readed: true
+            })
+                .then((response) => {
+                    if (response.status === 200 || response.status === 201) accept(response.data);
+                    else reject(response.data);
+                })
+                .catch((err) => reject(err));
+        });
     }
 
     // Tag the feed item with [id] to read later.
-    tagFeedReadLater(id) {
-
+    tagFeedReadLater(feedId, itemId) {
+        return new Promise((accept, reject) => {
+            return this.$http.put(this.baseurl + "/feeds/tag/", {
+                feed_id: Number(feedId),
+                item_id: Number(itemId),
+                read_later: true
+            })
+                .then((response) => {
+                    if (response.status === 200 || response.status === 201) accept(response.data);
+                    else reject(response.data);
+                })
+                .catch((err) => reject(err));
+        });
     }
 }
 

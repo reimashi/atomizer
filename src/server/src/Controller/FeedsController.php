@@ -34,29 +34,36 @@ class FeedsController extends AppController
         parent::initialize();
         $this->loadComponent('RequestHandler');
         $this->RequestHandler->renderAs($this, 'json');
-        $this->Auth->allow(['index', 'add']); // Permite sin auth
+        $this->Auth->allow(['index', 'add', 'tag', 'delete']); // TODO: Remove to auth
     }
 
-    public function indedx()
+    public function indexc()
     {
         $feedsModel = TableRegistry::get('feeds');
         $feeds = $feedsModel->find();
         $usersFeedsModel = TableRegistry::get('users_feeds');
         $rels = $usersFeedsModel->find();
+        $itemsModel = TableRegistry::get('items');
+        $items = $itemsModel->find();
+        $usersItemsModel = TableRegistry::get('users_items');
+        $relitems = $usersItemsModel->find();
         $this->set(array(
             "feeds" => $feeds,
-            "rels" => $rels
+            "rels" => $rels,
+            "items" => $items,
+            "relsi" => $relitems
         ));
     }
 
     public function index() {
-        //$user = $this->Auth->identify();
+        //$userId = $this->Auth->identify()["id"];
         $userId = 1;
-        $update = false;
+        $update = boolval($this->request->getQuery("update"));
 
         $feedsRelModel = TableRegistry::get('users_feeds');
         $feedsModel = TableRegistry::get('feeds');
         $itemsModel = TableRegistry::get('items');
+        $userItemsModel = TableRegistry::get('users_items');
 
         // Get user feed ids
         $feedsRel = $feedsRelModel->find()
@@ -101,7 +108,6 @@ class FeedsController extends AppController
                 foreach ($notUpdatedYet as $newItem) {
                     $newItemEntity = $itemsModel->newEntity();
 
-
                     $newItemEntity->feed_id = $userFeed["id"];
                     $newItemEntity->remoteid = $newItem["remote_id"];
                     $newItemEntity->url = $newItem["url"];
@@ -110,10 +116,19 @@ class FeedsController extends AppController
                     $newItemEntity->content = $newItem["content"];
                     $newItemEntity->content_type = $newItem["content_type"];
                     $newItemEntity->author = $newItem["author"];
-                    //$newItemEntity->updated = $newItem["updated"];
+                    //$newItemEntity->updated = $newItem["updated"]; FIXME
 
                     if (!$itemsModel->save($newItemEntity)) {
-                        throw new InternalErrorException("Server can not save a feed uptade");
+                        throw new InternalErrorException("Server can not save a feed update");
+                    }
+
+                    $newItemUserEntity = $userItemsModel->newEntity();
+
+                    $newItemUserEntity->item_id = $newItemEntity->id;
+                    $newItemUserEntity->user_id = $userId;
+
+                    if (!$userItemsModel->save($newItemUserEntity)) {
+                        throw new InternalErrorException("Server can not save a feed relation with user");
                     }
                 }
             }
@@ -124,7 +139,23 @@ class FeedsController extends AppController
             $itemsQuery = $itemsModel->find()
                 ->where(['feed_id =' => $userFeed["id"]]);
 
-            $userFeed["items"] = $itemsQuery->toArray();
+            $feedItems = $itemsQuery->toArray();
+
+            foreach ($feedItems as &$feedItem) {
+                $feedUserItemQuery = $userItemsModel->find()
+                    ->where(['item_id =' => $feedItem["id"], 'user_id =' => $userId]);
+
+                if ($feedUserItemQuery->first()) {
+                    $feedItem["readed"] = $feedUserItemQuery->first()->readed;
+                    $feedItem["read_later"] = $feedUserItemQuery->first()->read_later;
+                }
+                else {
+                    $feedItem["readed"] = false;
+                    $feedItem["read_later"] = false;
+                }
+            }
+
+            $userFeed["items"] = $feedItems;
         }
 
         $this->set($userFeeds);
@@ -198,9 +229,55 @@ class FeedsController extends AppController
 
     public function delete($id)
     {
-        $this->set([
-            'recipes' => "hola"
-        ]);
+        $this->set([]);
+    }
+
+    public function tag()
+    {
+        //$userId = $this->Auth->identify()["id"]; TODO: Uncomment to enable login
+        $userId = 1;
+
+        $body = $this->request->getParsedBody();
+
+        // If item_id id if set
+        if (isset($body["item_id"])) {
+            $usersItemsModel = TableRegistry::get('users_items');
+
+            // Find the relation
+            $usersItemsQuery = $usersItemsModel->find()
+                ->where(["user_id =" => $userId, "item_id =" => $body["item_id"]]);
+
+            // If relation don't exists, create
+            $relInstance = null;
+            if ($usersItemsQuery->first()) {
+                $relInstance = $usersItemsQuery->first();
+            }
+            else {
+                $relInstance =  $usersItemsModel->newEntity();
+
+                $relInstance->item_id = $body["item_id"];
+                $relInstance->user_id = $userId;
+            }
+
+            // Set flags
+            if (isset($body["readed"])) {
+                $relInstance->readed = boolval($body["readed"]);
+            }
+
+            if (isset($body["read_later"])) {
+                $relInstance->read_later = boolval($body["read_later"]);
+            }
+
+            // At last, save
+            if (!$usersItemsModel->save($relInstance)) {
+                throw new InternalErrorException("Server can't save the item tag");
+            }
+
+            $this->set($body);
+        }
+        else {
+            throw new BadRequestException("Request need the item id.");
+        }
     }
 
     private function getFeedData($url) {
