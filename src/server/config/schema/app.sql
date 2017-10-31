@@ -44,7 +44,7 @@ CREATE TABLE items (
     remoteid VARCHAR(255) NOT NULL,
     url VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
-    summary TINYTEXT,
+    summary TEXT,
     content TEXT,
     content_type VARCHAR(255), # xhtml, html...
     author VARCHAR(255),
