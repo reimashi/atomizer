@@ -18,6 +18,13 @@
 // Check platform requirements
 require dirname(__DIR__) . '/config/requirements.php';
 
+// For JWT Authorization token
+$headers = apache_request_headers();
+if(isset($headers['Authorization'])){
+    $_SERVER["HTTP_AUTHORIZATION"] = $headers['Authorization'];
+    $_ENV["HTTP_AUTHORIZATION"] = $headers['Authorization'];
+}
+
 // For built-in server
 if (php_sapi_name() === 'cli-server') {
     $_SERVER['PHP_SELF'] = '/' . basename(__FILE__);
